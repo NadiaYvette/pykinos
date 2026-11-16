@@ -1,0 +1,6 @@
+dist-newstyle/
+.ghc.environment.*
+.yamaarashi/
+tags
+.ok/
+ok.toml
