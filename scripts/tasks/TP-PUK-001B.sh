@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "=== [TP-PUK-001B] Deploying Pukinos.Tree.BPlus & Pukinos.Tree.FAST ==="
+
+mkdir -p pukinos-core/src/Pukinos/Tree pukinos-core/test
+
+# 1. Mount seeds
+cp -f /home/nyc/src/plans/seeds/TP-PUK-001B-BPlus.hs pukinos-core/src/Pukinos/Tree/BPlus.hs
+cp -f /home/nyc/src/plans/seeds/TP-PUK-001B-FAST.hs pukinos-core/src/Pukinos/Tree/FAST.hs
+
+# 2. Update pukinos-core.cabal
+cat << 'EOF' > pukinos-core/pukinos-core.cabal
+cabal-version: 3.0
+name: pukinos-core
+version: 0.1.0.0
+synopsis: Unboxed SIMD Roaring Bitmaps, ART IntMap, B+ and FAST search trees
+license: Apache-2.0
+build-type: Simple
+tested-with: GHC == 9.14.1
+
+library
+    exposed-modules:
+        Pukinos.Bitset.Roaring
+        Pukinos.IntMap.ART
+        Pukinos.Tree.BPlus
+        Pukinos.Tree.FAST
+    hs-source-dirs: src
+    default-language: GHC2024
+    ghc-options:
+        -Wall
+        -Wcompat
+        -Widentities
+        -Wno-unused-imports
+    build-depends:
+        base >= 4.19 && < 5,
+        primitive >= 0.9,
+        containers >= 0.6
+
+test-suite pukinos-core-test
+    type: exitcode-stdio-1.0
+    main-is: Spec.hs
+    hs-source-dirs: test
+    default-language: GHC2024
+    ghc-options: -threaded -rtsopts -with-rtsopts=-N
+    build-depends:
+        base >= 4.19 && < 5,
+        pukinos-core,
+        primitive >= 0.9,
+        containers >= 0.6
+EOF
+
+# 3. Update test/Spec.hs
+cat << 'EOF' > pukinos-core/test/Spec.hs
+{-# LANGUAGE BangPatterns #-}
+module Main (main) where
+
+import System.Exit (exitFailure)
+import Pukinos.Bitset.Roaring
+import Pukinos.IntMap.ART
+import Pukinos.Tree.BPlus
+import Pukinos.Tree.FAST
+
+assertBool :: String -> Bool -> IO ()
+assertBool name cond =
+  if cond
+    then putStrLn $ "  [PASS] " ++ name
+    else do
+      putStrLn $ "  [FAIL] " ++ name
+      exitFailure
+
+main :: IO ()
+main = do
+  putStrLn "=== [pukinos-core-test] Running Roaring & ART Test Suite ==="
+
+  -- 1. Roaring Basic Operations
+  let s0 = emptyRoaring
+  assertBool "s0 is null" (nullRoaring s0)
+
+  let s1 = singletonRoaring 42
+  assertBool "s1 not null" (not (nullRoaring s1))
+  assertBool "s1 contains 42" (memberRoaring 42 s1)
+  assertBool "s1 does not contain 43" (not (memberRoaring 43 s1))
+
+  -- 2. Roaring Dense Array / Bitmap Promotion (> 4096 entries in a single 16-bit block)
+  let denseList = [0 .. 4500]
+      sDense = fromListRoaring denseList
+  assertBool "sDense contains 0" (memberRoaring 0 sDense)
+  assertBool "sDense contains 4500" (memberRoaring 4500 sDense)
+  assertBool "sDense does not contain 4501" (not (memberRoaring 4501 sDense))
+
+  -- 3. Roaring Union, Intersect, Difference
+  let setA = fromListRoaring [1, 2, 3, 100, 70000]
+      setB = fromListRoaring [3, 4, 5, 100, 70001]
+      uSet = unionRoaring setA setB
+      iSet = intersectRoaring setA setB
+      dSet = differenceRoaring setA setB
+
+  assertBool "union contains 1" (memberRoaring 1 uSet)
+  assertBool "union contains 5" (memberRoaring 5 uSet)
+  assertBool "union contains 70000 and 70001" (memberRoaring 70000 uSet && memberRoaring 70001 uSet)
+  assertBool "intersect contains 3 and 100" (memberRoaring 3 iSet && memberRoaring 100 iSet)
+  assertBool "intersect does not contain 1" (not (memberRoaring 1 iSet))
+  assertBool "diff contains 1, 2, 70000" (memberRoaring 1 dSet && memberRoaring 2 dSet && memberRoaring 70000 dSet)
+  assertBool "diff does not contain 3 or 100" (not (memberRoaring 3 dSet) && not (memberRoaring 100 dSet))
+
+  -- 4. ART IntMap Operations across Node sizes
+  let m0 = emptyART :: ARTIntMap String
+      m4 = foldr (\k acc -> artInsert k ("val-" ++ show k) acc) m0 [1..4]
+  assertBool "m4 lookup 1" (artLookup 1 m4 == Just "val-1")
+  assertBool "m4 lookup 4" (artLookup 4 m4 == Just "val-4")
+  assertBool "m4 lookup 5 is Nothing" (artLookup 5 m4 == Nothing)
+
+  let m16 = foldr (\k acc -> artInsert k ("val-" ++ show k) acc) m4 [5..16]
+  assertBool "m16 lookup 16" (artLookup 16 m16 == Just "val-16")
+  assertBool "m16 lookup 10" (artLookup 10 m16 == Just "val-10")
+
+  let m48 = foldr (\k acc -> artInsert k ("val-" ++ show k) acc) m16 [17..48]
+  assertBool "m48 lookup 48" (artLookup 48 m48 == Just "val-48")
+
+  let m256 = foldr (\k acc -> artInsert k ("val-" ++ show k) acc) m48 [49..100]
+  assertBool "m256 lookup 100" (artLookup 100 m256 == Just "val-100")
+  assertBool "m256 member 75" (artMember 75 m256)
+  assertBool "m256 member 101 False" (not (artMember 101 m256))
+
+  let mDel = artDelete 50 m256
+  assertBool "mDel lookup 50 is Nothing" (artLookup 50 mDel == Nothing)
+  assertBool "mDel lookup 49 still Just" (artLookup 49 mDel == Just "val-49")
+
+  let kSet = artKeysSet mDel
+  assertBool "kSet contains 49" (memberRoaring 49 kSet)
+  assertBool "kSet does not contain 50" (not (memberRoaring 50 kSet))
+
+  -- 5. BPlusMap Tests (splits across multi-level blocks)
+  let bp0 = emptyBPlus :: BPlusMap Int String
+      bp100 = foldr (\k acc -> insertBPlus k ("v" ++ show k) acc) bp0 [1..100]
+  assertBool "bp100 size is 100" (bpmSize bp100 == 100)
+  assertBool "bp100 lookup 1" (lookupBPlus 1 bp100 == Just "v1")
+  assertBool "bp100 lookup 50" (lookupBPlus 50 bp100 == Just "v50")
+  assertBool "bp100 lookup 100" (lookupBPlus 100 bp100 == Just "v100")
+  assertBool "bp100 lookup 101 is Nothing" (lookupBPlus 101 bp100 == Nothing)
+
+  let ascList = toAscListBPlus bp100
+  assertBool "ascList has 100 items" (length ascList == 100)
+  assertBool "ascList is sorted" (map fst ascList == [1..100])
+
+  -- 6. FASTMap Tests (Eytzinger Cache-line acceleration)
+  let fast100 = freezeFAST bp100
+  assertBool "fast100 size is 100" (sizeFAST fast100 == 100)
+  assertBool "fast100 lookup 1" (lookupFAST 1 fast100 == Just "v1")
+  assertBool "fast100 lookup 50" (lookupFAST 50 fast100 == Just "v50")
+  assertBool "fast100 lookup 100" (lookupFAST 100 fast100 == Just "v100")
+  assertBool "fast100 lookup 101 is Nothing" (lookupFAST 101 fast100 == Nothing)
+
+  putStrLn "=== [pukinos-core-test] ALL 27 PROPERTIES AND UNIT CHECKS PASSED ==="
+EOF
+
+echo "=== [TP-PUK-001B] Building and testing pukinos-core ==="
+cabal v2-build pukinos-core -j20 --semaphore
+cabal v2-test pukinos-core
+
+echo "=== [TP-PUK-001B] Execution script complete ==="
