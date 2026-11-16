@@ -10,6 +10,8 @@ library
     exposed-modules:
         Pukinos.Bitset.Roaring
         Pukinos.IntMap.ART
+        Pukinos.Tree.BPlus
+        Pukinos.Tree.FAST
     hs-source-dirs: src
     default-language: GHC2024
     ghc-options:

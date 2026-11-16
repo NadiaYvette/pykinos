@@ -4,6 +4,8 @@ module Main (main) where
 import System.Exit (exitFailure)
 import Pukinos.Bitset.Roaring
 import Pukinos.IntMap.ART
+import Pukinos.Tree.BPlus
+import Pukinos.Tree.FAST
 
 assertBool :: String -> Bool -> IO ()
 assertBool name cond =
@@ -75,4 +77,25 @@ main = do
   assertBool "kSet contains 49" (memberRoaring 49 kSet)
   assertBool "kSet does not contain 50" (not (memberRoaring 50 kSet))
 
-  putStrLn "=== [pukinos-core-test] ALL 18 PROPERTIES AND UNIT CHECKS PASSED ==="
+  -- 5. BPlusMap Tests (splits across multi-level blocks)
+  let bp0 = emptyBPlus :: BPlusMap Int String
+      bp100 = foldr (\k acc -> insertBPlus k ("v" ++ show k) acc) bp0 [1..100]
+  assertBool "bp100 size is 100" (bpmSize bp100 == 100)
+  assertBool "bp100 lookup 1" (lookupBPlus 1 bp100 == Just "v1")
+  assertBool "bp100 lookup 50" (lookupBPlus 50 bp100 == Just "v50")
+  assertBool "bp100 lookup 100" (lookupBPlus 100 bp100 == Just "v100")
+  assertBool "bp100 lookup 101 is Nothing" (lookupBPlus 101 bp100 == Nothing)
+
+  let ascList = toAscListBPlus bp100
+  assertBool "ascList has 100 items" (length ascList == 100)
+  assertBool "ascList is sorted" (map fst ascList == [1..100])
+
+  -- 6. FASTMap Tests (Eytzinger Cache-line acceleration)
+  let fast100 = freezeFAST bp100
+  assertBool "fast100 size is 100" (sizeFAST fast100 == 100)
+  assertBool "fast100 lookup 1" (lookupFAST 1 fast100 == Just "v1")
+  assertBool "fast100 lookup 50" (lookupFAST 50 fast100 == Just "v50")
+  assertBool "fast100 lookup 100" (lookupFAST 100 fast100 == Just "v100")
+  assertBool "fast100 lookup 101 is Nothing" (lookupFAST 101 fast100 == Nothing)
+
+  putStrLn "=== [pukinos-core-test] ALL 27 PROPERTIES AND UNIT CHECKS PASSED ==="
