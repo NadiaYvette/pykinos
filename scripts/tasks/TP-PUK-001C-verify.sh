@@ -2,6 +2,6 @@
 set -euo pipefail
 
 echo "=== [TP-PUK-001C-verify] Running verification gate ==="
-cabal v2-build pukinos-penelope -j20 --semaphore
-cabal v2-test pukinos-penelope
+cabal v2-build pykinos-penelope -j20 --semaphore
+cabal v2-test pykinos-penelope
 echo "=== [TP-PUK-001C-verify] Gate PASS ==="

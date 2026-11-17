@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "=== [TP-PUK-001C] Deploying Pukinos.Effect.Penelope ==="
+echo "=== [TP-PUK-001C] Deploying Pykinos.Effect.Penelope ==="
 
-mkdir -p pukinos-penelope/src/Pukinos/Effect pukinos-penelope/test
+mkdir -p pykinos-penelope/src/Pykinos/Effect pykinos-penelope/test
 
 # 1. Update cabal.project
 cat << 'EOF' > cabal.project
 packages:
-    pukinos-core
-    pukinos-penelope
+    pykinos-core
+    pykinos-penelope
 
 with-compiler: ghc-9.14.1
 write-ghc-environment-files: always
@@ -19,12 +19,12 @@ package *
 EOF
 
 # 2. Mount seed
-cp -f /home/nyc/src/plans/seeds/TP-PUK-001C-Penelope.hs pukinos-penelope/src/Pukinos/Effect/Penelope.hs
+cp -f /home/nyc/src/plans/seeds/TP-PUK-001C-Penelope.hs pykinos-penelope/src/Pykinos/Effect/Penelope.hs
 
-# 3. Write pukinos-penelope.cabal
-cat << 'EOF' > pukinos-penelope/pukinos-penelope.cabal
+# 3. Write pykinos-penelope.cabal
+cat << 'EOF' > pykinos-penelope/pykinos-penelope.cabal
 cabal-version: 3.0
-name: pukinos-penelope
+name: pykinos-penelope
 version: 0.1.0.0
 synopsis: Transient Epoch# In-Place Mutation and Lockless MVCC Handles
 license: Apache-2.0
@@ -33,7 +33,7 @@ tested-with: GHC == 9.14.1
 
 library
     exposed-modules:
-        Pukinos.Effect.Penelope
+        Pykinos.Effect.Penelope
     hs-source-dirs: src
     default-language: GHC2024
     ghc-options:
@@ -43,11 +43,11 @@ library
         -Wno-unused-imports
     build-depends:
         base >= 4.19 && < 5,
-        pukinos-core,
+        pykinos-core,
         primitive >= 0.9,
         containers >= 0.6
 
-test-suite pukinos-penelope-test
+test-suite pykinos-penelope-test
     type: exitcode-stdio-1.0
     main-is: Spec.hs
     hs-source-dirs: test
@@ -55,20 +55,20 @@ test-suite pukinos-penelope-test
     ghc-options: -threaded -rtsopts -with-rtsopts=-N
     build-depends:
         base >= 4.19 && < 5,
-        pukinos-core,
-        pukinos-penelope,
+        pykinos-core,
+        pykinos-penelope,
         primitive >= 0.9
 EOF
 
 # 4. Write test/Spec.hs
-cat << 'EOF' > pukinos-penelope/test/Spec.hs
+cat << 'EOF' > pykinos-penelope/test/Spec.hs
 {-# LANGUAGE BangPatterns #-}
 module Main (main) where
 
 import System.Exit (exitFailure)
-import Pukinos.Tree.BPlus
-import Pukinos.Tree.FAST
-import Pukinos.Effect.Penelope
+import Pykinos.Tree.BPlus
+import Pykinos.Tree.FAST
+import Pykinos.Effect.Penelope
 
 assertBool :: String -> Bool -> IO ()
 assertBool name cond =
@@ -80,7 +80,7 @@ assertBool name cond =
 
 main :: IO ()
 main = do
-  putStrLn "=== [pukinos-penelope-test] Running Transient Epoch & MVCC Pushout Suite ==="
+  putStrLn "=== [pykinos-penelope-test] Running Transient Epoch & MVCC Pushout Suite ==="
 
   -- 1. Transient Epoch batch mutation
   let baseTree = insertBPlus (1 :: Int) ("init1" :: String) emptyBPlus
@@ -129,11 +129,11 @@ main = do
   assertBool "conflict left is branchA" (pcLeftVal conflict == "branchA")
   assertBool "conflict right is branchB" (pcRightVal conflict == "branchB")
 
-  putStrLn "=== [pukinos-penelope-test] ALL 14 PROPERTIES AND UNIT CHECKS PASSED ==="
+  putStrLn "=== [pykinos-penelope-test] ALL 14 PROPERTIES AND UNIT CHECKS PASSED ==="
 EOF
 
-echo "=== [TP-PUK-001C] Building and testing pukinos-penelope ==="
-cabal v2-build pukinos-penelope -j20 --semaphore
-cabal v2-test pukinos-penelope
+echo "=== [TP-PUK-001C] Building and testing pykinos-penelope ==="
+cabal v2-build pykinos-penelope -j20 --semaphore
+cabal v2-test pykinos-penelope
 
 echo "=== [TP-PUK-001C] Execution script complete ==="

@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "=== [TP-PUK-001B] Deploying Pukinos.Tree.BPlus & Pukinos.Tree.FAST ==="
+echo "=== [TP-PUK-001B] Deploying Pykinos.Tree.BPlus & Pykinos.Tree.FAST ==="
 
-mkdir -p pukinos-core/src/Pukinos/Tree pukinos-core/test
+mkdir -p pykinos-core/src/Pykinos/Tree pykinos-core/test
 
 # 1. Mount seeds
-cp -f /home/nyc/src/plans/seeds/TP-PUK-001B-BPlus.hs pukinos-core/src/Pukinos/Tree/BPlus.hs
-cp -f /home/nyc/src/plans/seeds/TP-PUK-001B-FAST.hs pukinos-core/src/Pukinos/Tree/FAST.hs
+cp -f /home/nyc/src/plans/seeds/TP-PUK-001B-BPlus.hs pykinos-core/src/Pykinos/Tree/BPlus.hs
+cp -f /home/nyc/src/plans/seeds/TP-PUK-001B-FAST.hs pykinos-core/src/Pykinos/Tree/FAST.hs
 
-# 2. Update pukinos-core.cabal
-cat << 'EOF' > pukinos-core/pukinos-core.cabal
+# 2. Update pykinos-core.cabal
+cat << 'EOF' > pykinos-core/pykinos-core.cabal
 cabal-version: 3.0
-name: pukinos-core
+name: pykinos-core
 version: 0.1.0.0
 synopsis: Unboxed SIMD Roaring Bitmaps, ART IntMap, B+ and FAST search trees
 license: Apache-2.0
@@ -21,10 +21,10 @@ tested-with: GHC == 9.14.1
 
 library
     exposed-modules:
-        Pukinos.Bitset.Roaring
-        Pukinos.IntMap.ART
-        Pukinos.Tree.BPlus
-        Pukinos.Tree.FAST
+        Pykinos.Bitset.Roaring
+        Pykinos.IntMap.ART
+        Pykinos.Tree.BPlus
+        Pykinos.Tree.FAST
     hs-source-dirs: src
     default-language: GHC2024
     ghc-options:
@@ -37,7 +37,7 @@ library
         primitive >= 0.9,
         containers >= 0.6
 
-test-suite pukinos-core-test
+test-suite pykinos-core-test
     type: exitcode-stdio-1.0
     main-is: Spec.hs
     hs-source-dirs: test
@@ -45,21 +45,21 @@ test-suite pukinos-core-test
     ghc-options: -threaded -rtsopts -with-rtsopts=-N
     build-depends:
         base >= 4.19 && < 5,
-        pukinos-core,
+        pykinos-core,
         primitive >= 0.9,
         containers >= 0.6
 EOF
 
 # 3. Update test/Spec.hs
-cat << 'EOF' > pukinos-core/test/Spec.hs
+cat << 'EOF' > pykinos-core/test/Spec.hs
 {-# LANGUAGE BangPatterns #-}
 module Main (main) where
 
 import System.Exit (exitFailure)
-import Pukinos.Bitset.Roaring
-import Pukinos.IntMap.ART
-import Pukinos.Tree.BPlus
-import Pukinos.Tree.FAST
+import Pykinos.Bitset.Roaring
+import Pykinos.IntMap.ART
+import Pykinos.Tree.BPlus
+import Pykinos.Tree.FAST
 
 assertBool :: String -> Bool -> IO ()
 assertBool name cond =
@@ -71,7 +71,7 @@ assertBool name cond =
 
 main :: IO ()
 main = do
-  putStrLn "=== [pukinos-core-test] Running Roaring & ART Test Suite ==="
+  putStrLn "=== [pykinos-core-test] Running Roaring & ART Test Suite ==="
 
   -- 1. Roaring Basic Operations
   let s0 = emptyRoaring
@@ -152,11 +152,11 @@ main = do
   assertBool "fast100 lookup 100" (lookupFAST 100 fast100 == Just "v100")
   assertBool "fast100 lookup 101 is Nothing" (lookupFAST 101 fast100 == Nothing)
 
-  putStrLn "=== [pukinos-core-test] ALL 27 PROPERTIES AND UNIT CHECKS PASSED ==="
+  putStrLn "=== [pykinos-core-test] ALL 27 PROPERTIES AND UNIT CHECKS PASSED ==="
 EOF
 
-echo "=== [TP-PUK-001B] Building and testing pukinos-core ==="
-cabal v2-build pukinos-core -j20 --semaphore
-cabal v2-test pukinos-core
+echo "=== [TP-PUK-001B] Building and testing pykinos-core ==="
+cabal v2-build pykinos-core -j20 --semaphore
+cabal v2-test pykinos-core
 
 echo "=== [TP-PUK-001B] Execution script complete ==="

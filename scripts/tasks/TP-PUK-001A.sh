@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "=== [TP-PUK-001A] Deploying Pukinos.Bitset.Roaring & Pukinos.IntMap.ART ==="
+echo "=== [TP-PUK-001A] Deploying Pykinos.Bitset.Roaring & Pykinos.IntMap.ART ==="
 
-mkdir -p pukinos-core/src/Pukinos/Bitset pukinos-core/src/Pukinos/IntMap pukinos-core/test
+mkdir -p pykinos-core/src/Pykinos/Bitset pykinos-core/src/Pykinos/IntMap pykinos-core/test
 
 # 1. Mount pre-staged seeds
-cp -f /home/nyc/src/plans/seeds/TP-PUK-001A-Roaring.hs pukinos-core/src/Pukinos/Bitset/Roaring.hs
-cp -f /home/nyc/src/plans/seeds/TP-PUK-001A-ART.hs pukinos-core/src/Pukinos/IntMap/ART.hs
+cp -f /home/nyc/src/plans/seeds/TP-PUK-001A-Roaring.hs pykinos-core/src/Pykinos/Bitset/Roaring.hs
+cp -f /home/nyc/src/plans/seeds/TP-PUK-001A-ART.hs pykinos-core/src/Pykinos/IntMap/ART.hs
 
-# 2. Write pukinos-core.cabal
-cat << 'EOF' > pukinos-core/pukinos-core.cabal
+# 2. Write pykinos-core.cabal
+cat << 'EOF' > pykinos-core/pykinos-core.cabal
 cabal-version: 3.0
-name: pukinos-core
+name: pykinos-core
 version: 0.1.0.0
 synopsis: Unboxed SIMD Roaring Bitmaps, ART IntMap, B+ and FAST search trees
 license: Apache-2.0
@@ -21,8 +21,8 @@ tested-with: GHC == 9.14.1
 
 library
     exposed-modules:
-        Pukinos.Bitset.Roaring
-        Pukinos.IntMap.ART
+        Pykinos.Bitset.Roaring
+        Pykinos.IntMap.ART
     hs-source-dirs: src
     default-language: GHC2024
     ghc-options:
@@ -35,7 +35,7 @@ library
         primitive >= 0.9,
         containers >= 0.6
 
-test-suite pukinos-core-test
+test-suite pykinos-core-test
     type: exitcode-stdio-1.0
     main-is: Spec.hs
     hs-source-dirs: test
@@ -43,19 +43,19 @@ test-suite pukinos-core-test
     ghc-options: -threaded -rtsopts -with-rtsopts=-N
     build-depends:
         base >= 4.19 && < 5,
-        pukinos-core,
+        pykinos-core,
         primitive >= 0.9,
         containers >= 0.6
 EOF
 
 # 3. Write test/Spec.hs
-cat << 'EOF' > pukinos-core/test/Spec.hs
+cat << 'EOF' > pykinos-core/test/Spec.hs
 {-# LANGUAGE BangPatterns #-}
 module Main (main) where
 
 import System.Exit (exitFailure)
-import Pukinos.Bitset.Roaring
-import Pukinos.IntMap.ART
+import Pykinos.Bitset.Roaring
+import Pykinos.IntMap.ART
 
 assertBool :: String -> Bool -> IO ()
 assertBool name cond =
@@ -67,7 +67,7 @@ assertBool name cond =
 
 main :: IO ()
 main = do
-  putStrLn "=== [pukinos-core-test] Running Roaring & ART Test Suite ==="
+  putStrLn "=== [pykinos-core-test] Running Roaring & ART Test Suite ==="
 
   -- 1. Roaring Basic Operations
   let s0 = emptyRoaring
@@ -127,11 +127,11 @@ main = do
   assertBool "kSet contains 49" (memberRoaring 49 kSet)
   assertBool "kSet does not contain 50" (not (memberRoaring 50 kSet))
 
-  putStrLn "=== [pukinos-core-test] ALL 18 PROPERTIES AND UNIT CHECKS PASSED ==="
+  putStrLn "=== [pykinos-core-test] ALL 18 PROPERTIES AND UNIT CHECKS PASSED ==="
 EOF
 
-echo "=== [TP-PUK-001A] Building and testing pukinos-core ==="
-cabal v2-build pukinos-core -j20 --semaphore
-cabal v2-test pukinos-core
+echo "=== [TP-PUK-001A] Building and testing pykinos-core ==="
+cabal v2-build pykinos-core -j20 --semaphore
+cabal v2-test pykinos-core
 
 echo "=== [TP-PUK-001A] Execution script complete ==="
