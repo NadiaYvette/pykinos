@@ -14,7 +14,7 @@ description:
   Provides two-tier SIMD Roaring bitmaps, 4-tier Adaptive Radix Trees (ART),
   unboxed B+ trees, FAST search tree accelerators, Swiss Tables, and dynamic
   hidden classes.
-license: EUPL-1.2
+license: EUPL-1.2 OR Apache-2.0
 license-file: LICENSE
 author: Nadia Yvette Chambers
 maintainer: nadia.yvette.chambers@ik.me

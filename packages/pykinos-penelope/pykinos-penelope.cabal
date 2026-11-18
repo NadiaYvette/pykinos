@@ -6,7 +6,7 @@ description:
   Penelope effect system integration with Pykinos unboxed data structures,
   providing transient epoch isolation (withTransientEpoch) and lockless
   categorical pushout merges (pushoutMergeMVCC) over divergent transaction branches.
-license: EUPL-1.2
+license: EUPL-1.2 OR Apache-2.0
 license-file: LICENSE
 author: Nadia Yvette Chambers
 maintainer: nadia.yvette.chambers@ik.me
