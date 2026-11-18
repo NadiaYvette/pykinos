@@ -1,6 +1,6 @@
 packages:
-    pykinos-core
-    pykinos-penelope
+    packages/pykinos-core
+    packages/pykinos-penelope
 
 with-compiler: ghc-9.14.1
 write-ghc-environment-files: always

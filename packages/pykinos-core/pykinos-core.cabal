@@ -2,7 +2,8 @@ cabal-version: 3.0
 name: pykinos-core
 version: 0.1.0.0
 synopsis: Unboxed SIMD Roaring Bitmaps, ART IntMap, B+ and FAST search trees
-license: Apache-2.0
+license: EUPL-1.2
+license-file: LICENSE
 build-type: Simple
 tested-with: GHC == 9.14.1
 

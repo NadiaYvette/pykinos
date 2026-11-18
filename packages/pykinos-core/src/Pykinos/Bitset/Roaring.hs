@@ -1,27 +1,51 @@
--- VERBATIM_CODE_SEED: TP-PUK-001A
--- TARGET_REPO: ~/src/pukinos
--- TARGET_PACKAGE: pukinos-core
--- TARGET_FILES:
---   src/Pukinos/Bitset/Roaring.hs
---   src/Pukinos/IntMap/ART.hs
+{-# LANGUAGE BangPatterns, UnboxedTuples #-}
 
-{-# LANGUAGE BangPatterns, MagicHash, UnboxedTuples #-}
+{- |
+Module      : Pykinos.Bitset.Roaring
+Description : Serried Roaring Bitmap with unboxed primitive chunk layout
+Copyright   : (c) Nadia Yvette Chambers, 2026
+License     : EUPL-1.2
+Maintainer  : Nadia Chambers <nadia.yvette.chambers@ik.me>
+Stability   : experimental
+Portability : non-portable (GHC extensions, primitive arrays)
 
+Implements compressed Roaring Bitmaps based on Chambi, Lemire, Kaser, and Godin (2016),
+/"Better alternative to compressed bitmaps: Roaring bitmaps"/.
+
+= Architectural Mechanics
+
+A 32-bit integer \(x \in [0, 2^{32}-1]\) is partitioned into:
+* A 16-bit chunk key: \(\text{hi} = \lfloor x / 2^{16} \rfloor\)
+* A 16-bit in-chunk offset: \(\text{lo} = x \bmod 2^{16}\)
+
+Within each 16-bit universe of 65,536 integers, data is stored in one of two formats:
+1. **'ArrayChunk' (Sparse):** When cardinality \(< 4096\) elements, integers are stored
+   as a sorted contiguous 'PrimArray Word16'. Space consumed is \(2 \times \text{cardinality}\) bytes.
+2. **'BitmapChunk' (Dense):** When cardinality \(\ge 4096\) elements, integers are stored
+   as an unboxed bitset of 1024 64-bit words (8192 bytes = 65,536 bits).
+
+Set operations ('unionRoaring', 'intersectRoaring', 'differenceRoaring') execute via
+two-finger merges over sorted chunk keys and utilize bitwise vector primitives for bitmap chunks.
+-}
 module Pykinos.Bitset.Roaring
-  ( RoaringIntSet(..)
+  ( -- * Roaring Bitmap Types
+    RoaringIntSet(..)
   , RoaringChunk(..)
+    -- * Construction & Empty Sets
   , emptyRoaring
   , singletonRoaring
+  , fromListRoaring
+    -- * Queries & Predicates
+  , nullRoaring
   , memberRoaring
+  , toListRoaring
+  , foldlRoaring'
+    -- * Set Algebra
   , insertRoaring
   , deleteRoaring
-  , nullRoaring
   , unionRoaring
   , intersectRoaring
   , differenceRoaring
-  , fromListRoaring
-  , toListRoaring
-  , foldlRoaring'
   ) where
 
 import Control.Monad.ST (runST)
@@ -51,14 +75,23 @@ splitKey !x =
   let !u = fromIntegral x :: Word
   in (fromIntegral (u `shiftR` 16), fromIntegral (u .&. 0xFFFF))
 
+-- | Construct an empty 'RoaringIntSet'.
+--
+-- Running time: \(O(1)\).
 {-# INLINE emptyRoaring #-}
 emptyRoaring :: RoaringIntSet
 emptyRoaring = RoaringIntSet (primArrayFromList []) (smallArrayFromList [])
 
+-- | Test whether the 'RoaringIntSet' is empty.
+--
+-- Running time: \(O(1)\).
 {-# INLINE nullRoaring #-}
 nullRoaring :: RoaringIntSet -> Bool
 nullRoaring (RoaringIntSet keys _) = sizeofPrimArray keys == 0
 
+-- | Construct a single-element 'RoaringIntSet'.
+--
+-- Running time: \(O(1)\).
 {-# INLINE singletonRoaring #-}
 singletonRoaring :: Int -> RoaringIntSet
 singletonRoaring !x =
@@ -253,7 +286,7 @@ intersectChunk (ArrayChunk aA) (ArrayChunk aB) =
   let !inter = intersectSortedW16 aA aB
   in if sizeofPrimArray inter == 0 then Nothing else Just (ArrayChunk inter)
 intersectChunk (ArrayChunk a) b@(BitmapChunk _) =
-  let !filtered = filterW16 (\lo -> memberChunk lo b) a
+  let !filtered = filterW16 (`memberChunk` b) a
   in if sizeofPrimArray filtered == 0 then Nothing else Just (ArrayChunk filtered)
 intersectChunk a@(BitmapChunk _) (ArrayChunk b) =
   intersectChunk (ArrayChunk b) a
