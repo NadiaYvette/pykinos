@@ -91,10 +91,10 @@ func main() {
 		}
 		testSnippet := `
   -- 8. HiddenClass & Lexicon Tests
-  let lex = buildLexicon [T.pack "beta", T.pack "alpha", T.pack "gamma"]
-  assertBool "alpha fid is 0" (lookupFieldId lex (T.pack "alpha") == Just (FieldId 0))
-  assertBool "beta fid is 1" (lookupFieldId lex (T.pack "beta") == Just (FieldId 1))
-  assertBool "gamma fid is 2" (lookupFieldId lex (T.pack "gamma") == Just (FieldId 2))
+  let lx = buildLexicon [T.pack "beta", T.pack "alpha", T.pack "gamma"]
+  assertBool "alpha fid is 0" (lookupFieldId lx (T.pack "alpha") == Just (FieldId 0))
+  assertBool "beta fid is 1" (lookupFieldId lx (T.pack "beta") == Just (FieldId 1))
+  assertBool "gamma fid is 2" (lookupFieldId lx (T.pack "gamma") == Just (FieldId 2))
 `
 		target := "putStrLn \"=== [pykinos-core-test] ALL 30 PROPERTIES AND UNIT CHECKS PASSED ===\""
 		replacement := testSnippet + "\n  putStrLn \"=== [pykinos-core-test] ALL 33 PROPERTIES AND UNIT CHECKS PASSED ===\""
