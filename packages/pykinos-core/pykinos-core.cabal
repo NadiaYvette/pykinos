@@ -13,6 +13,7 @@ library
         Pykinos.IntMap.ART
         Pykinos.Tree.BPlus
         Pykinos.Tree.FAST
+        Pykinos.Mutable.SwissTable
         Pukinos.Bitset.Roaring
         Pukinos.IntMap.ART
         Pukinos.Tree.BPlus

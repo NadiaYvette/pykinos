@@ -4,6 +4,8 @@ module Main (main) where
 import System.Exit (exitFailure)
 import Pykinos.Bitset.Roaring
 import Pykinos.IntMap.ART
+import Pykinos.Mutable.SwissTable
+import Control.Monad.ST (runST)
 import Pykinos.Tree.BPlus
 import Pykinos.Tree.FAST
 
@@ -98,4 +100,18 @@ main = do
   assertBool "fast100 lookup 100" (lookupFAST 100 fast100 == Just "v100")
   assertBool "fast100 lookup 101 is Nothing" (lookupFAST 101 fast100 == Nothing)
 
-  putStrLn "=== [pykinos-core-test] ALL 27 PROPERTIES AND UNIT CHECKS PASSED ==="
+  
+  -- 7. SwissTable128 Tests (SWAR 128-bit hash-consing)
+  let (id0, id1, id0_again) = runST $ do
+        tbl <- newSwissTable128 32
+        let (kLo1, kHi1) = packNfNode128 1 0 10 20 30
+            (kLo2, kHi2) = packNfNode128 2 0 40 50 60
+        i0 <- lookupOrInsert128 tbl kLo1 kHi1
+        i1 <- lookupOrInsert128 tbl kLo2 kHi2
+        i0' <- lookupOrInsert128 tbl kLo1 kHi1
+        pure (i0, i1, i0')
+  assertBool "id0 is 0" (id0 == 0)
+  assertBool "id1 is 1" (id1 == 1)
+  assertBool "id0_again matches id0" (id0_again == 0)
+
+  putStrLn "=== [pykinos-core-test] ALL 30 PROPERTIES AND UNIT CHECKS PASSED ==="
