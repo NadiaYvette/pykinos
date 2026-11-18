@@ -5,6 +5,8 @@ import System.Exit (exitFailure)
 import Pykinos.Bitset.Roaring
 import Pykinos.IntMap.ART
 import Pykinos.Mutable.SwissTable
+import Pykinos.Schema.HiddenClass
+import qualified Data.Text as T
 import Control.Monad.ST (runST)
 import Pykinos.Tree.BPlus
 import Pykinos.Tree.FAST
@@ -114,4 +116,11 @@ main = do
   assertBool "id1 is 1" (id1 == 1)
   assertBool "id0_again matches id0" (id0_again == 0)
 
-  putStrLn "=== [pykinos-core-test] ALL 30 PROPERTIES AND UNIT CHECKS PASSED ==="
+  
+  -- 8. HiddenClass & Lexicon Tests
+  let lx = buildLexicon [T.pack "beta", T.pack "alpha", T.pack "gamma"]
+  assertBool "alpha fid is 0" (lookupFieldId lx (T.pack "alpha") == Just (FieldId 0))
+  assertBool "beta fid is 1" (lookupFieldId lx (T.pack "beta") == Just (FieldId 1))
+  assertBool "gamma fid is 2" (lookupFieldId lx (T.pack "gamma") == Just (FieldId 2))
+
+  putStrLn "=== [pykinos-core-test] ALL 33 PROPERTIES AND UNIT CHECKS PASSED ==="

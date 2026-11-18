@@ -14,6 +14,7 @@ library
         Pykinos.Tree.BPlus
         Pykinos.Tree.FAST
         Pykinos.Mutable.SwissTable
+        Pykinos.Schema.HiddenClass
         Pukinos.Bitset.Roaring
         Pukinos.IntMap.ART
         Pukinos.Tree.BPlus
@@ -28,7 +29,8 @@ library
     build-depends:
         base >= 4.19 && < 5,
         primitive >= 0.9,
-        containers >= 0.6
+        containers >= 0.6,
+        text >= 2.0
 
 test-suite pykinos-core-test
     type: exitcode-stdio-1.0
@@ -40,4 +42,5 @@ test-suite pykinos-core-test
         base >= 4.19 && < 5,
         pykinos-core,
         primitive >= 0.9,
-        containers >= 0.6
+        containers >= 0.6,
+        text >= 2.0
