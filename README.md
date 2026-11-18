@@ -12,7 +12,7 @@
 
 In modern computing systems, CPU cache hierarchies heavily penalize sparse, pointer-chasing data structures (*ἀραιός*). Indirection chains trigger cache misses, pipeline stalls, and GC heap fragmentation.
 
-`pykinos` adheres to the ancient virtue of **τὸ πυκνόν**: unboxed, contiguous, cache-line aligned primitive memory structures where data is packed firmly together (*πυκινῶς*). It provides high-performance blocked memory substrates, cache-conscious trees, compressed bitsets, and transient epoch MVCC for the Haskell ecosystem.
+`pykinos` adheres to the ancient virtue of **τὸ πυκνόν**: a deliberate double entendre uniting **physical compactness** (unboxed, contiguous, cache-line aligned primitive memory structures where data is packed firmly together, *πυκινῶς*) with **intellectual shrewdness and terseness** (adaptive radix morphing, lockless transient epoch MVCC, and self-optimizing hidden classes; *πυκιναὶ φρένες*). While `cek` draws upon the formal **computer science literature** of abstract reduction machines, `pykinos` draws upon the **classical Greek literature** to provide high-performance blocked memory substrates and cache-conscious execution for the Haskell ecosystem.
 
 ---
 

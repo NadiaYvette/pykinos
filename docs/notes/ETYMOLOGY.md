@@ -61,7 +61,25 @@ The primary semantic axis defined by Liddell & Scott is **A. close, compact**. A
 
 ---
 
-## 3. Mapping to Computer Systems Architecture
+## 3. The Dual Heritage & The Double Entendre
+
+The pair `cek` and `pykinos` reflect two complementary literatures:
+
+* **`cek` draws from the Computer Science Literature:** The formal tradition of operational semantics and abstract reduction machines — Matthias Felleisen and Daniel Friedman's Control-Environment-Kontinuation machine (1986), Gordon Plotkin's call-by-value ISWIM (1975), Olivier Danvy's syntactic theories of control, David H. D. Warren's logic engine architecture (WAM, 1983), and Andreas Rossberg's typed module calculus (1ML, 2015).
+* **`pykinos` draws from the Classical Greek Literature:** The lexical and philological record spanning Homer, Parmenides, Sappho, Alcaeus, Plato, Xenophon, Aristoxenus, and Dionysius of Halicarnassus via Liddell & Scott.
+
+### The Double Entendre of πυκνός / πυκινός
+
+The name `pykinos` constitutes a deliberate double entendre:
+
+1. **Physical Compactness (The Hardware Axis):**  
+   It denotes the physical contiguity and density of memory representation — unboxed primitive byte buffers (`PrimArray`, `ByteArray#`), cacheline alignment, SIMD Roaring bitmasks, and contiguous node layouts. Like the Homeric corselet (*πυκινὸς θώρηξ*) or the locked shields of the phalanx (*πυκιναὶ φάλαγγες*), data elements stand shoulder-to-shoulder (*πυκνοὶ ἐφέστασαν ἀλλήλοισιν*), banishing pointer indirection and sparse heap dispersion (*ἀραιός*).
+2. **Intellectual Shrewdness and Terseness (The Algorithmic Axis):**  
+   It denotes the intellectual cunning and sharpness of the algorithms themselves — adaptive radix node morphing (`Node4` $\to$ `Node16` $\to$ `Node48` $\to$ `Node256`), lockless transient epoch MVCC with $O(1)$ pushout merges, and dynamic hidden class schema interning. Like the Homeric shrewd mind (*πυκιναὶ φρένες*) or Thucydidean terseness (*τὸ πυκνόν*), the system packs maximum computational payload into minimal space without waste or boilerplate.
+
+---
+
+## 4. Mapping to Computer Systems Architecture
 
 The architectural design of `pykinos` deliberately channels this classical tradition into modern cache-conscious computer systems engineering:
 
