@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary & Purpose
 
-`pykinos` (πυκινός, Greek for *dense, packed, compact, solid*) provides cache-conscious, unboxed, blocked data structures for high-performance algebraic evaluation, AST indexing, and transactional memory in the Nadiverse suite:
+`pykinos` (Epic Greek **πυκινός** *pykinos*, Attic **πυκνός** *pyknos*: *close, compact, dense, solid, shrewd, terse*, cf. Liddell & Scott, *A Greek-English Lexicon*, 1940) embodies the architectural virtue of **τὸ πυκνόν** (*to pyknon*, "terseness and compactness", Dionysius of Halicarnassus, *De Thucydide* 24; *πυκινὸς θώρηξ* "close-jointed corselet", *Iliad* 15.529). In stark contrast to sparse, pointer-chasing structures (*ἀραιός*), `pykinos` provides cache-conscious, unboxed, blocked data structures for high-performance algebraic evaluation, AST indexing, and transactional memory in the Nadiverse suite:
 
 1. **Roaring Bitsets (`Pykinos.Bitset.Roaring`):** Two-tier compressed bitsets partitioned into 64 KiB chunks (`ArrayChunk` for sparse clusters $\le 4096$ items, `BitmapChunk` for dense bitmasks).
 2. **Adaptive Radix Trees (`Pykinos.IntMap.ART`):** Cache-conscious 4-tier radix tree (`Node4`, `Node16`, `Node48`, `Node256`) optimizing key traversal depth and memory occupancy without boxed pointer chains.

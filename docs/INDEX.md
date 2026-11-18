@@ -14,6 +14,7 @@ Welcome to the `pykinos` technical documentation corpus.
 
 ## Design Notes (`docs/notes/`)
 
+- [`ETYMOLOGY.md`](notes/ETYMOLOGY.md) — Philological and etymological exegesis of πυκνός / πυκινός.
 - [`PYKINOS_DESIGN.md`](notes/PYKINOS_DESIGN.md) — Canonical design notes.
 - [`DOC_STRATEGY.md`](notes/DOC_STRATEGY.md) — Documentation strategy and precedence rules.
 - [`COMMIT_ATTRIBUTION.md`](notes/COMMIT_ATTRIBUTION.md) — Commit attribution standards.
