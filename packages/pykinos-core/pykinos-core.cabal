@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: pykinos-core
-version: 0.1.0.0
+version: 0.1.0.2
 synopsis: Unboxed SIMD Roaring Bitmaps, ART IntMap, B+ and FAST search trees
 description:
   Cache-conscious, unboxed, blocked data structures for high-performance

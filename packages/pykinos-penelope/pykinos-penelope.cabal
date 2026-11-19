@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name: pykinos-penelope
-version: 0.1.0.0
+version: 0.1.0.2
 synopsis: Transient Epoch mutation and lockless MVCC handles for Pykinos
 description:
   Penelope effect system integration with Pykinos unboxed data structures,
